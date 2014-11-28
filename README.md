@@ -1,6 +1,8 @@
 Ruby Framework
 =========
 
+[![Gem Version](https://badge.fury.io/rb/framework.svg)](http://badge.fury.io/rb/framework)
+
 Framework to build Ruby applications for all your needs. Inspired by Rails, but clear and clean from any web-related backend.
 
 ### Features
