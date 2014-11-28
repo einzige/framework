@@ -36,15 +36,38 @@ module Framework
 
     def create_database!(name = nil)
       name ||= 'default'
-      establish_postgres_connection(name)
-      ActiveRecord::Base.connection.create_database(database_config[name][env]['database'])
-      puts "The database #{database_config[name][env]['database']} has been successfully created"
+      cfg = database_config[name][env]
+
+      case cfg['adapter']
+      when 'postgresql'
+        establish_postgres_connection(name)
+        ActiveRecord::Base.connection.create_database(cfg['database'])
+      when 'sqlite3'
+        raise 'Database already exists' if File.exist?(cfg['database'])
+        establish_database_connection
+      else
+        raise "Unknown adapter '#{cfg['adapter']}'"
+      end
+
+      puts "The database #{cfg['database']} has been successfully created"
     end
 
     def drop_database!(name = nil)
       name ||= 'default'
-      establish_postgres_connection(name)
-      ActiveRecord::Base.connection.drop_database(database_config[name][env]['database'])
+      cfg = database_config[name][env]
+
+      case cfg['adapter']
+      when 'postgresql'
+        establish_postgres_connection(name)
+        ActiveRecord::Base.connection.drop_database(cfg['database'])
+      when 'sqlite3'
+        require 'pathname'
+        path = Pathname.new(cfg['database']).to_s
+        FileUtils.rm(path) if File.exist?(path)
+      else
+        raise "Unknown adapter '#{cfg['adapter']}'"
+      end
+
       puts "The database #{database_config[name][env]['database']} has been successfully dropped"
     end
 
