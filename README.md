@@ -37,6 +37,14 @@ gem install framework
 framework new myapp
 ```
 
+### Run console to play
+
+```shell
+rake console
+```
+
+![screen shot 2014-11-28 at 17 14 48](https://cloud.githubusercontent.com/assets/370635/5226522/dcfbdc42-7719-11e4-9af9-602d1e68e0fa.png)
+
 ### Structure
 
 Pretty similar to Rails (just a sample):
