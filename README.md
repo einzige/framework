@@ -70,6 +70,30 @@ Pretty similar to Rails (just a sample):
 |____README.md
 ```
 
+### Configuration
+
+Configurations are stored in `config/application.yml`. Note, that as opposed to Rails, even initializers and models are listed as custom paths in `autoload_paths` section. This gives you a flexibility to explicitly say which paths and what exactly used in your app. Don't need no initializers? Don't list them in autoload paths. Order matters.
+
+```yaml
+development: &common
+  enable_logging: yes
+  autoload_paths:
+    - config/initializers
+    - app/models
+  default_timezone: 'Pacific Time (US & Canada)'
+
+test:
+  <<: *common
+  enable_logging: no
+
+staging:
+  <<: *common
+
+production:
+  <<: *common
+  enable_logging: no
+```
+
 ### More docu and updates coming soon
 
 I encourage you to contribute! :)
