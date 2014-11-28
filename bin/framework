@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'framework/cli'
+
+Framework::Cli.start(ARGV)
