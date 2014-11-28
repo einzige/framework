@@ -2,7 +2,7 @@ desc "Runs irb console and initializes the application"
 task :console, :env do |_, args|
   require 'irb'
 
-  unless env = ENV['ANALYTICS_ENV']
+  unless env = ENV['FRAMEWORK_ENV']
     env = args[:env] || Framework::DEFAULT_ENV
   end
 

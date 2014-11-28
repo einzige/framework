@@ -1,8 +1,11 @@
+require 'framework/migration'
 require 'erb'
 
 module Framework
   class MigrationGenerator
 
+    # @param [String] db_name
+    # @param [String] migration_name
     def initialize(db_name: db_name, migration_name: name)
       @db_name = db_name.underscore
       @migration_name = migration_name.underscore
@@ -16,7 +19,7 @@ module Framework
       migration_file << ERB.new(template).result(context)
       migration_file.close
 
-      Framework.app.hint "Generated migration: #@path"
+      p "Generated migration: #@path"
     end
 
     def templates_path
@@ -43,7 +46,7 @@ module Framework
       def load_migrations
         Dir["./db/migrations/**/*.rb"].each(&method(:load))
       rescue
-        raise "An error was occurred"
+        raise 'An error was occurred'
       end
 
       def validate!
