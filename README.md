@@ -19,6 +19,7 @@ Framework to build Ruby applications for all your needs. Inspired by Rails, but 
 - You need to quickly start a project from scratch 
 - You want to have your backend code to stay separate from any large frameworks (like Rails)
 - You want to build some "worker" application running your business logic with no interface
+- Setting up an interview? Use Framework!
 - Wanna build web application? You can easily integrate your code into any web framework (Rack, Rails etc) (see below)
 - You don't want to learn a new framework, you are the one who knows only Rails :)
 - You want to test something quickly and you don't want to waste your time setting new environment up
