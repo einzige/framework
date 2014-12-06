@@ -20,8 +20,8 @@ module Framework
       create_file 'lib/.keep'
 
       empty_directory 'db'
-      empty_directory 'db/migrations'
-      create_file 'db/migrations/.keep'
+      empty_directory 'db/migrate'
+      create_file 'db/migrate/.keep'
     end
 
     def create_application_config

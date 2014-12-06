@@ -72,11 +72,11 @@ module Framework
     end
 
     def migrate_database(version = nil)
-      ActiveRecord::Migrator.migrate "db/migrations", version.try(:to_i)
+      ActiveRecord::Migrator.migrate "db/migrate", version.try(:to_i)
     end
 
     def rollback_database(steps = 1)
-      ActiveRecord::Migrator.rollback "db/migrations", steps
+      ActiveRecord::Migrator.rollback "db/migrate", steps
     end
 
     # @return [Hash<String>]

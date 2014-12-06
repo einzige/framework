@@ -69,7 +69,7 @@ Pretty similar to Rails (just a sample):
 | |____initializers
 | | |____time_zone.rb
 |____db
-| |____migrations
+| |____migrate
 | | |____.keep
 | | |____20141128085924_create_tasks.rb
 | | |____20141128090211_create_users.rb

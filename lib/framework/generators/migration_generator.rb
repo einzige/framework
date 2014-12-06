@@ -10,7 +10,7 @@ module Framework
       @db_name = db_name.underscore
       @migration_name = migration_name.underscore
       @timestamp = Time.now.utc.strftime("%Y%m%d%H%M%S")
-      @path = "db/migrations/#{@timestamp}_#@migration_name.rb"
+      @path = "db/migrate/#{@timestamp}_#@migration_name.rb"
     end
 
     def generate
@@ -44,7 +44,7 @@ module Framework
       end
 
       def load_migrations
-        Dir["./db/migrations/**/*.rb"].each(&method(:load))
+        Dir["./db/migrate/**/*.rb"].each(&method(:load))
       rescue
         raise 'An error was occurred'
       end

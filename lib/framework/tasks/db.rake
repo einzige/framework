@@ -43,7 +43,7 @@ namespace :db do
       env = 'test'
       puts "Loading #{env.inspect}"
       Framework::Application.new(env).init!
-      ActiveRecord::Migrator.migrate('db/migrations/')
+      ActiveRecord::Migrator.migrate('db/migrate/')
     end
   end
 end
