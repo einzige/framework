@@ -1,14 +1,18 @@
+require 'framework/root'
+
 module Framework
   class Application
     CONFIG_PATH = "config/application.yml"
 
     attr_reader :env
     attr_accessor :logger
+    attr_reader :root
     delegate :hint, :note, to: :logger
 
     # @param [String] env Environment from configuration file
     def initialize(env = nil)
       @env = env || Framework.env
+      @root = Root.new(Dir.pwd)
       Framework.app = self
       yield self if block_given?
     end

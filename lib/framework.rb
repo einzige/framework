@@ -23,5 +23,10 @@ module Framework
   def self.env
     @app ? @app.env : (ENV['FRAMEWORK_ENV'] || DEFAULT_ENV)
   end
-end
 
+  # Returns current work dir String
+  # @return [Framework::Root]
+  def self.root
+    @app.try(:root)
+  end
+end
