@@ -21,7 +21,7 @@ module Framework
   end
 
   def self.env
-    @app ? @app.env : (ENV['FRAMEWORK_ENV'] || DEFAULT_ENV)
+    @app ? @app.env : (ENV['FRAMEWORK_ENV'] || ENV['RAILS_ENV'] || DEFAULT_ENV)
   end
 
   # Returns current work dir String
