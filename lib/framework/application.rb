@@ -128,16 +128,21 @@ module Framework
 
     # Autoloads all app-specific files
     def autoload
-      config['autoload_paths'].each do |autoload_path|
+      if %w(development test).include?(env.to_s)
+        config['autoload_paths'].each(&method(:autoreload_constants))
+        autoreload_yml
+      end
+
+      (config['autoload_paths'] + ['config/initializers']).each do |autoload_path|
         path = root.join(autoload_path)
 
         if path.end_with?('.rb')
-          load(path)
+          require_dependency(path)
         else
           load_path(File.join(path, 'concerns'))
 
           Dir["#{path}/**/*.rb"].each do |path_to_load|
-            load(path_to_load) unless path_to_load.include?('concerns/')
+            require_dependency(path_to_load) unless path_to_load.include?('concerns/')
           end
         end
       end
@@ -155,7 +160,7 @@ module Framework
 
     # @param [String] path
     def load_path(path)
-      Dir["#{path}/**/*.rb"].each(&method(:load))
+      Dir["#{path}/**/*.rb"].each(&method(:require_dependency))
     end
 
     # @return [IO, nil]
@@ -166,6 +171,57 @@ module Framework
     # @return [Framework::Logger]
     def logger
       @logger ||= Framework::Logger.new(log_level)
+    end
+
+    def autoreload_yml(path=root)
+      autoreload(path, 'yml') { @yml_reloaded = true } unless @yml_reloaded
+    end
+
+    def autoreload_constants(path)
+      return if reloadable_paths.include?(path)
+      absolute_path = Pathname.new(root.join(path))
+
+      autoreload(path, 'rb') do |files|
+        files.each do |file_path|
+          pathname = Pathname.new(file_path)
+
+          # Get Const Name
+          const_name = pathname.basename.to_s.sub('.rb', '').camelize.to_sym
+          full_name = pathname.relative_path_from(absolute_path).sub('.rb', '').to_s.camelize
+
+          # Get Module Name
+          relative_file_path = Pathname.new(pathname.dirname).relative_path_from(absolute_path).to_s
+
+          if Object.const_defined?(full_name)
+            if relative_file_path == '.'
+              Object.send :remove_const, const_name
+            else
+              module_name = relative_file_path.camelize
+              module_name.constantize.send(:remove_const, const_name)
+            end
+          end
+        end
+      end
+
+      reloadable_paths << path
+    end
+
+    def reloadable_paths
+      @reloadable_paths ||= []
+    end
+
+    def autoreload(path=root, ext, &block)
+      files = Dir[root.join(path, "/**/*.#{ext}")]
+
+      reloader = ActiveSupport::FileUpdateChecker.new(files) do
+        Framework::Logger.disappointment ">> Reloading .#{ext} files"
+        block.try(:call, files)
+        Framework.app.init!
+      end
+
+      ActionDispatch::Callbacks.to_prepare do
+        reloader.execute_if_updated
+      end
     end
   end
 end
