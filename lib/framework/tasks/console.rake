@@ -8,7 +8,7 @@ task :console, :env do |_, args|
 
   system "mkdir -p #{Dir.pwd}/db/#{env}"
 
-  Framework::Application.new(env) do |app|
+  Framework::Application.new(env: env) do |app|
     app.init!
     app.hint("Use `Framework.app` variable to deal with application API")
 

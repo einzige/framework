@@ -10,9 +10,9 @@ module Framework
     delegate :hint, :note, to: :logger
 
     # @param [String] env Environment from configuration file
-    def initialize(env = nil)
+    def initialize(env: nil, root: nil)
       @env = env || Framework.env
-      @root = Root.new(Dir.pwd)
+      @root = Root.new(root || Dir.pwd)
       Framework.app = self
       yield self if block_given?
     end

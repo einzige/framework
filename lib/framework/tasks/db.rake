@@ -28,21 +28,21 @@ namespace :db do
     task :create, :name do |_, args|
       env = 'test'
       puts "Loading #{env.inspect}"
-      Framework::Application.new(env).create_database!(args[:name])
+      Framework::Application.new(env: env).create_database!(args[:name])
     end
 
     desc "Drops test database"
     task :drop, :name do |_, args|
       env = 'test'
       puts "Loading #{env.inspect}"
-      Framework::Application.new(env).drop_database!(args[:name])
+      Framework::Application.new(env: env).drop_database!(args[:name])
     end
 
     desc "Runs test migrations"
     task :migrate do
       env = 'test'
       puts "Loading #{env.inspect}"
-      Framework::Application.new(env).init!
+      Framework::Application.new(env: env).init!
       ActiveRecord::Migrator.migrate('db/migrate/')
     end
   end
