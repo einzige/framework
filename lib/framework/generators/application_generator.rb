@@ -30,7 +30,6 @@ module Framework
         development: &common
           enable_logging: yes
           autoload_paths:
-            - config/initializers
             - app/models
           default_timezone: 'Pacific Time (US & Canada)'
 

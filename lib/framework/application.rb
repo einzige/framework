@@ -7,7 +7,7 @@ module Framework
     attr_reader :env
     attr_accessor :logger
     attr_reader :root
-    delegate :hint, :note, to: :logger
+    delegate :hint, :note, :whisper, :disappointment, to: :logger
 
     # @param [String] env Environment from configuration file
     def initialize(env: nil, root: nil)
@@ -25,13 +25,21 @@ module Framework
       load_application_config
       load_database_config
       note "Loading #{env} environment (#{Framework::VERSION})"
+      require_dependencies 'config/initializers'
       autoload
       note "Establishing database connection"
       establish_database_connection
       note "Application has been initialized"
       self
     end
-    alias_method :reload!, :init!
+
+    def reload!
+      @config = nil
+      disappointment "Reloading #{env}"
+      load_application_config
+      autoload
+      self
+    end
 
     # @return [Hash<String>]
     def config
@@ -106,75 +114,31 @@ module Framework
 
     private
 
-    def establish_database_connection
-      if database_config
-        database_config.each do |_, db_config|
-          ActiveRecord::Base.establish_connection(db_config[env])
-
-          if db_config[env]['enable_logging']
-            ActiveRecord::Base.logger = Logger.new(STDOUT)
-          end
-        end
-      end
-    end
-
-    # Used to create/drop db
-    def establish_postgres_connection(name = 'default')
-      if database_config[name]
-        ActiveRecord::Base.establish_connection(database_config[name][env].merge('database' => 'postgres',
-                                                                                 'schema_search_path' => 'public'))
-      end
-    end
-
     # Autoloads all app-specific files
     def autoload
       if %w(development test).include?(env.to_s)
         config['autoload_paths'].each(&method(:autoreload_constants))
         autoreload_yml
       end
-
-      (config['autoload_paths'] + ['config/initializers']).each do |autoload_path|
-        path = root.join(autoload_path)
-
-        if path.end_with?('.rb')
-          require_dependency(path)
-        else
-          load_path(File.join(path, 'concerns'))
-
-          Dir["#{path}/**/*.rb"].each do |path_to_load|
-            require_dependency(path_to_load) unless path_to_load.include?('concerns/')
-          end
-        end
-      end
-    end
-
-    # @return [Hash]
-    def load_application_config
-      @config = YAML.load_file(root.join(CONFIG_PATH))[env]
-    end
-
-    # @return [Hash]
-    def load_database_config
-      @database_config = YAML.load_file(root.join('config/databases.yml'))
-    end
-
-    # @param [String] path
-    def load_path(path)
-      Dir["#{path}/**/*.rb"].each(&method(:require_dependency))
-    end
-
-    # @return [IO, nil]
-    def log_level
-      config['enable_logging'] ? STDOUT : nil
-    end
-
-    # @return [Framework::Logger]
-    def logger
-      @logger ||= Framework::Logger.new(log_level)
+      config['autoload_paths'].each(&method(:require_dependencies))
     end
 
     def autoreload_yml(path=root)
       autoreload(path, 'yml') { @yml_reloaded = true } unless @yml_reloaded
+    end
+
+    def autoreload(path=root, ext, &block)
+      files = Dir[root.join(path, "/**/*.#{ext}")]
+
+      reloader = ActiveSupport::FileUpdateChecker.new(files) do
+        whisper "Reloading .#{ext} files"
+        block.try(:call, files)
+        Framework.app.reload!
+      end
+
+      ActionDispatch::Callbacks.to_prepare do
+        reloader.execute_if_updated
+      end
     end
 
     def autoreload_constants(path)
@@ -208,21 +172,66 @@ module Framework
       reloadable_paths << path
     end
 
+    def establish_database_connection
+      if database_config
+        database_config.each do |_, db_config|
+          ActiveRecord::Base.establish_connection(db_config[env])
+
+          if db_config[env]['enable_logging']
+            ActiveRecord::Base.logger = Logger.new(STDOUT)
+          end
+        end
+      end
+    end
+
+    # Used to create/drop db
+    def establish_postgres_connection(name = 'default')
+      if database_config[name]
+        ActiveRecord::Base.establish_connection(database_config[name][env].merge('database' => 'postgres',
+                                                                                 'schema_search_path' => 'public'))
+      end
+    end
+
+    # @return [Hash]
+    def load_application_config
+      @config = YAML.load_file(root.join(CONFIG_PATH))[env]
+    end
+
+    # @return [Hash]
+    def load_database_config
+      @database_config = YAML.load_file(root.join('config/databases.yml'))
+    end
+
+    # @param [String] path
+    def load_path(path)
+      Dir["#{path}/**/*.rb"].each(&method(:require_dependency))
+    end
+
+    # @return [IO, nil]
+    def log_level
+      config['enable_logging'] ? STDOUT : nil
+    end
+
+    # @return [Framework::Logger]
+    def logger
+      @logger ||= Framework::Logger.new(log_level)
+    end
+
     def reloadable_paths
       @reloadable_paths ||= []
     end
 
-    def autoreload(path=root, ext, &block)
-      files = Dir[root.join(path, "/**/*.#{ext}")]
+    def require_dependencies(autoload_path)
+      path = root.join(autoload_path)
 
-      reloader = ActiveSupport::FileUpdateChecker.new(files) do
-        Framework::Logger.disappointment ">> Reloading .#{ext} files"
-        block.try(:call, files)
-        Framework.app.init!
-      end
+      if path.end_with?('.rb')
+        require_dependency(path)
+      else
+        load_path(File.join(path, 'concerns'))
 
-      ActionDispatch::Callbacks.to_prepare do
-        reloader.execute_if_updated
+        Dir["#{path}/**/*.rb"].each do |path_to_load|
+          require_dependency(path_to_load) unless path_to_load.include?('concerns/')
+        end
       end
     end
   end

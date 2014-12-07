@@ -89,8 +89,8 @@ Configurations are stored in `config/application.yml`. Note, that as opposed to 
 development: &common
   enable_logging: yes
   autoload_paths:
-    - config/initializers
     - app/models
+    - app/managers
   default_timezone: 'Pacific Time (US & Canada)'
 
 test:
