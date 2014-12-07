@@ -25,10 +25,10 @@ module Framework
       load_application_config
       load_database_config
       note "Loading #{env} environment (#{Framework::VERSION})"
-      require_dependencies 'config/initializers'
-      autoload
       note "Establishing database connection"
       establish_database_connection
+      require_dependencies 'config/initializers'
+      load_application_files
       note "Application has been initialized"
       self
     end
@@ -37,7 +37,7 @@ module Framework
       @config = nil
       disappointment "Reloading #{env}"
       load_application_config
-      autoload
+      load_application_files
       self
     end
 
@@ -115,7 +115,7 @@ module Framework
     private
 
     # Autoloads all app-specific files
-    def autoload
+    def load_application_files
       if %w(development test).include?(env.to_s)
         config['autoload_paths'].each(&method(:autoreload_constants))
         autoreload_yml
