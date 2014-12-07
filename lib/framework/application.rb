@@ -179,6 +179,8 @@ module Framework
 
     def autoreload_constants(path)
       return if reloadable_paths.include?(path)
+
+      ActiveSupport::Dependencies.autoload_paths += [root.join(path)]
       absolute_path = Pathname.new(root.join(path))
 
       autoreload(path, 'rb') do |files|
