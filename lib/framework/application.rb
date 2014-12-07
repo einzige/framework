@@ -76,11 +76,11 @@ module Framework
     end
 
     def migrate_database(version = nil)
-      ActiveRecord::Migrator.migrate "db/migrate", version.try(:to_i)
+      ActiveRecord::Migrator.migrate root.join("db/migrate"), version.try(:to_i)
     end
 
     def rollback_database(steps = 1)
-      ActiveRecord::Migrator.rollback "db/migrate", steps
+      ActiveRecord::Migrator.rollback root.join("db/migrate"), steps
     end
 
     # @return [Hash<String>]
@@ -92,7 +92,7 @@ module Framework
     def database
       adapter  = database_config['default'][env]['adapter']
       database = database_config['default'][env]['database']
-      adapter == 'sqlite3' ? "db/sqlite/#{env}/#{database}.db" : database
+      adapter == 'sqlite3' ? root.join("db/sqlite/#{env}/#{database}.db") : database
     end
 
     def self.init!
@@ -128,7 +128,9 @@ module Framework
 
     # Autoloads all app-specific files
     def autoload
-      config['autoload_paths'].each do |path|
+      config['autoload_paths'].each do |autoload_path|
+        path = root.join(autoload_path)
+
         if path.end_with?('.rb')
           load(path)
         else
@@ -143,15 +145,15 @@ module Framework
 
     # @return [Hash]
     def load_application_config
-      @config = YAML.load_file(CONFIG_PATH)[env]
+      @config = YAML.load_file(root.join(CONFIG_PATH))[env]
     end
 
     # @return [Hash]
     def load_database_config
-      @database_config = YAML.load_file('config/databases.yml')
+      @database_config = YAML.load_file(root.join('config/databases.yml'))
     end
 
-    # @param [String] path Relative to project root
+    # @param [String] path
     def load_path(path)
       Dir["#{path}/**/*.rb"].each(&method(:load))
     end
