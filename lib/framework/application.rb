@@ -1,4 +1,5 @@
 require 'framework/root'
+require 'framework/config'
 require 'action_dispatch/middleware/reloader'
 require 'action_dispatch/middleware/callbacks'
 
@@ -196,7 +197,7 @@ module Framework
 
     # @return [Hash]
     def load_application_config
-      @config = YAML.load_file(root.join(CONFIG_PATH))[env]
+      @config = Framework::Config.new(YAML.load_file(root.join(CONFIG_PATH))[env])
     end
 
     # @return [Hash]
