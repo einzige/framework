@@ -1,3 +1,5 @@
+require 'logger'
+
 class Framework::Logger < Logger
 
   # @param [String] message
