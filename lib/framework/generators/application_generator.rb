@@ -74,7 +74,6 @@ module Framework
             <<: *common
             database: #{db_name}_production
 
-        # Custom one. Models located at app/models/second_one path will point to this database by default.
         second_one:
           development: &common
             adapter: postgresql

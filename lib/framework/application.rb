@@ -1,4 +1,6 @@
 require 'framework/root'
+require 'action_dispatch/middleware/reloader'
+require 'action_dispatch/middleware/callbacks'
 
 module Framework
   class Application
