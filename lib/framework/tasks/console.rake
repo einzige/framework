@@ -1,21 +1,13 @@
-desc "Runs irb console and initializes the application"
+desc 'Runs irb console and initializes the application'
 task :console, :env do |_, args|
-  require 'irb'
-
-  unless env = ENV['FRAMEWORK_ENV'] || ENV['RAILS_ENV']
-    env = args[:env] || Framework::DEFAULT_ENV
-  end
-
+  env = ENV['FRAMEWORK_ENV'] ||= args[:env] || ENV['RAILS_ENV']
   system "mkdir -p #{Dir.pwd}/db/#{env}"
 
-  Framework::Application.new(env: env) do |app|
-    app.init!
-    app.hint("Use `Framework.app` variable to deal with application API")
+  require 'irb'
+  require File.expand_path('config/environment')
+  require 'awesome_print'
 
-    require "awesome_print"
-    AwesomePrint.irb!
-  end
-
+  AwesomePrint.irb!
   ARGV.clear
   IRB.start
 end
