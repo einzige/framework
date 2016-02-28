@@ -24,9 +24,9 @@ Gem::Specification.new do |s|
   s.bindir        = 'bin'
   s.executables = ['framework']
 
-  s.add_runtime_dependency 'activerecord',  '~> 5.0',  '>= 5.0'
-  s.add_runtime_dependency 'activesupport', '~> 5.0',  '>= 5.0'
-  s.add_runtime_dependency 'actionpack',    '~> 5.0',  '>= 5.0'
+  s.add_runtime_dependency 'activerecord',  '~> 4.2',  '>= 4.2.5.1'
+  s.add_runtime_dependency 'activesupport', '~> 4.2',  '>= 4.2.5.1'
+  s.add_runtime_dependency 'actionpack',    '~> 4.2',  '>= 4.2.5.1'
   s.add_runtime_dependency 'awesome_print', '~> 1.6',  '>= 1.6.1'
   s.add_runtime_dependency 'rake',          '~> 10.5', '>= 10.5.0'
   s.add_runtime_dependency 'thor',          '~> 0.19', '>= 0.19.1'
