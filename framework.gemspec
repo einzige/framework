@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.summary     = %q{Ruby Application Framework for all your needs.}
   s.description = %q{Allows to quickly build well structured complex Ruby apps.}
 
-  s.required_ruby_version     = '>= 2.0.0'
+  s.required_ruby_version     = '>= 2.2.3'
   s.required_rubygems_version = '>= 2.2.2'
 
   s.license = 'MIT'

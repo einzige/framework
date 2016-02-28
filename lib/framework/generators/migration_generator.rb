@@ -6,7 +6,7 @@ module Framework
 
     # @param [String] db_name
     # @param [String] migration_name
-    def initialize(db_name: db_name, migration_name: name)
+    def initialize(db_name: , migration_name: )
       @db_name = db_name.underscore
       @migration_name = migration_name.underscore
       @timestamp = Time.now.utc.strftime("%Y%m%d%H%M%S")
