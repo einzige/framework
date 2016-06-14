@@ -74,25 +74,25 @@ module Framework
             <<: *common
             database: #{db_name}_production
 
-        second_one:
-          development: &common
-            adapter: postgresql
-            username:
-            password:
-            database: second_sample_development
-            min_messages: WARNING
-            reconnect: true
-            pool: 5
-            encoding: unicode
-            host: localhost
-
-          test:
-            <<: *common
-            database: second_sample_test
-
-          production:
-            <<: *common
-            database: second_sample_production
+        # second_one:
+        #   development: &common
+        #     adapter: postgresql
+        #     username:
+        #     password:
+        #     database: second_sample_development
+        #     min_messages: WARNING
+        #     reconnect: true
+        #     pool: 5
+        #     encoding: unicode
+        #     host: localhost
+        #
+        #   test:
+        #     <<: *common
+        #     database: second_sample_test
+        #
+        #   production:
+        #     <<: *common
+        #     database: second_sample_production
         CONFIG
       end
     end
