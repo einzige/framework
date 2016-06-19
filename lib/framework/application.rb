@@ -197,12 +197,17 @@ module Framework
 
     # @return [Hash]
     def load_application_config
-      @config = Framework::Config.new(YAML.load_file(root.join(CONFIG_PATH))[env])
+      @config = Framework::Config.new(YAML.load(erb(CONFIG_PATH).result)[env])
     end
 
     # @return [Hash]
     def load_database_config
-      @database_config = YAML.load_file(root.join('config/databases.yml'))
+      @database_config = YAML.load(erb('config/databases.yml').result)
+    end
+
+    # @param [String] path
+    def erb(path)
+      ERB.new(File.read(root.join(path)))
     end
 
     # @param [String] path
