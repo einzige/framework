@@ -5,9 +5,11 @@ task :console, :env do |_, args|
 
   require 'irb'
   require File.expand_path('config/environment')
-  require 'awesome_print'
 
-  AwesomePrint.irb!
+  if defined?(AwesomePrint)
+    AwesomePrint.irb!
+  end
+
   ARGV.clear
   IRB.start
 end

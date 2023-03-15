@@ -27,7 +27,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'activerecord',  '~> 7.0.4'
   s.add_runtime_dependency 'activesupport', '~> 7.0.4'
   s.add_runtime_dependency 'actionpack',    '~> 7.0.4'
-  s.add_runtime_dependency 'awesome_print', '~> 2.0.0.pre2'
   s.add_runtime_dependency 'rake',          '~> 13.0', '>= 13.0.6'
   s.add_runtime_dependency 'thor',          '~> 1.2', '>= 1.2.1'
 
