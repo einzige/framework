@@ -50,49 +50,26 @@ module Framework
     def create_database_config
       db_name = name.underscore
 
-      create_file 'config/databases.yml' do
+      create_file 'config/database.yml' do
         <<-CONFIG.strip_heredoc
-        # Defult database is used by default.
-        # Any models locating at app/models root directory will point to this database by default.
-        default:
-          development: &common
-            adapter: postgresql
-            username:
-            password:
-            database: #{db_name}_development
-            min_messages: WARNING
-            reconnect: true
-            pool: 5
-            encoding: unicode
-            host: localhost
+        development: &common
+          adapter: postgresql
+          username:
+          password:
+          database: #{db_name}_development
+          min_messages: WARNING
+          reconnect: true
+          pool: 5
+          encoding: unicode
+          host: localhost
 
-          test:
-            <<: *common
-            database: #{db_name}_test
+        test:
+          <<: *common
+          database: #{db_name}_test
 
-          production:
-            <<: *common
-            database: #{db_name}_production
-
-        # second_one:
-        #   development: &common
-        #     adapter: postgresql
-        #     username:
-        #     password:
-        #     database: second_sample_development
-        #     min_messages: WARNING
-        #     reconnect: true
-        #     pool: 5
-        #     encoding: unicode
-        #     host: localhost
-        #
-        #   test:
-        #     <<: *common
-        #     database: second_sample_test
-        #
-        #   production:
-        #     <<: *common
-        #     database: second_sample_production
+        production:
+          <<: *common
+          database: #{db_name}_production
         CONFIG
       end
     end
@@ -102,7 +79,7 @@ module Framework
         <<-CONFIG.strip_heredoc
         # Set up gems listed in the Gemfile.
         ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', __FILE__)
-        require 'bundler/setup' if File.exists?(ENV['BUNDLE_GEMFILE'])
+        require 'bundler/setup' if File.exist?(ENV['BUNDLE_GEMFILE'])
 
         require 'framework'
 

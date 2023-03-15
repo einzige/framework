@@ -1,6 +1,4 @@
-class <%= @migration_name %> < Framework::Migration
-  use_database :<%= @db_name %>
-
+class <%= @migration_name %> < ActiveRecord::Migration[7.0]
   def up
   end
 

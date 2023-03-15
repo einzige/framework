@@ -3,11 +3,10 @@ Ruby Framework
 
 [![Gem Version](https://badge.fury.io/rb/framework.svg)](http://badge.fury.io/rb/framework)
 
-Framework to build Ruby applications for all your needs. Inspired by Rails, but clear and clean from any web-related backend.
+Framework to build Ruby applications for all your needs. Rails without web perks.
 
 ### Features
 
-- Easy configuration to work with multiple databases
 - ActiveRecord interface
 - Customizable structure
 - YAML configuration
@@ -70,7 +69,7 @@ Pretty similar to Rails (just a sample):
 | | |____hello.rake
 |____config
 | |____application.yml
-| |____databases.yml
+| |____database.yml
 | |____environment.rb
 | |____initializers
 | | |____time_zone.rb

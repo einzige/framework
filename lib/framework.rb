@@ -2,7 +2,6 @@ require 'active_record'
 require 'bundler'
 
 require 'framework/version'
-require 'framework/extensions/active_record/base_extension'
 require 'framework/logger'
 require 'framework/application'
 require 'framework/db_listener'

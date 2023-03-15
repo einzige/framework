@@ -1,11 +1,11 @@
 require 'framework/root'
 require 'framework/config'
-require 'action_dispatch/middleware/reloader'
-require 'action_dispatch/middleware/callbacks'
+require 'active_support/reloader'
+require 'active_support/file_update_checker'
 
 module Framework
   class Application
-    CONFIG_PATH = "config/application.yml"
+    CONFIG_PATH = "config/application.yml".freeze
 
     attr_reader :env
     attr_accessor :logger
@@ -51,7 +51,7 @@ module Framework
 
     def create_database!(name = nil)
       name ||= 'default'
-      cfg = database_config[name][env]
+      cfg = name == 'default' ? database_config[env] : database_config.dig(env, name)
 
       case cfg['adapter']
       when 'postgresql'
@@ -69,7 +69,7 @@ module Framework
 
     def drop_database!(name = nil)
       name ||= 'default'
-      cfg = database_config[name][env]
+      cfg = name == 'default' ? database_config[env] : database_config.dig(env, name)
 
       case cfg['adapter']
       when 'postgresql'
@@ -83,7 +83,7 @@ module Framework
         raise "Unknown adapter '#{cfg['adapter']}'"
       end
 
-      puts "The database #{database_config[name][env]['database']} has been successfully dropped"
+      puts "The database #{cfg['database']} has been successfully dropped"
     end
 
     def migrate_database(version = nil)
@@ -101,8 +101,8 @@ module Framework
 
     # @return [String] Database name
     def database
-      adapter  = database_config['default'][env]['adapter']
-      database = database_config['default'][env]['database']
+      adapter  = database_config.dig(env, 'adapter')
+      database = database_config.dig(env, 'database')
       adapter == 'sqlite3' ? root.join("db/sqlite/#{env}/#{database}.db") : database
     end
 
@@ -111,7 +111,7 @@ module Framework
     end
 
     def db_connection(db_name = 'default')
-      ActiveRecord::Base.establish_connection(database_config[db_name][env])
+      ActiveRecord::Base.establish_connection(db_name == 'default' ? database_config.dig(env) : database_config.dig(env, db_name))
       ActiveRecord::Base.connection
     end
 
@@ -139,7 +139,7 @@ module Framework
         Framework.app.reload!
       end
 
-      ActionDispatch::Callbacks.to_prepare do
+      ActiveSupport::Reloader.to_prepare do
         reloader.execute_if_updated
       end
     end
@@ -176,33 +176,43 @@ module Framework
     end
 
     def establish_database_connection
-      if database_config
-        database_config.each do |_, db_config|
-          ActiveRecord::Base.establish_connection(db_config[env])
+      env_dbs = database_config[env]
 
-          if db_config[env]['enable_logging']
-            ActiveRecord::Base.logger = Logger.new(STDOUT)
+      if env_dbs
+        # If all are hashes, then we have multiple connections
+        if env_dbs.all? { |item| item.is_a?(Hash) }
+          env_dbs.each do |_db_key, db_config|
+            ActiveRecord::Base.establish_connection(db_config.except('enable_logging'))
+
+            if db_config['enable_logging']
+              ActiveRecord::Base.logger = Logger.new(STDOUT)
+            end
           end
+        else
+          # We have flat one database
+          ActiveRecord::Base.establish_connection(env_dbs.except('enable_logging'))
         end
       end
     end
 
     # Used to create/drop db
     def establish_postgres_connection(name = 'default')
-      if database_config[name]
-        ActiveRecord::Base.establish_connection(database_config[name][env].merge('database' => 'postgres',
-                                                                                 'schema_search_path' => 'public'))
+      if database_config
+        conf = name == 'default' ? database_config.dig(env) : database_config.dig(env, name)
+
+        ActiveRecord::Base.establish_connection(conf.merge('database' => 'postgres',
+                                                           'schema_search_path' => 'public'))
       end
     end
 
     # @return [Hash]
     def load_application_config
-      @config = Framework::Config.new(YAML.load(erb(CONFIG_PATH).result)[env])
+      @config = Framework::Config.new(YAML.load(erb(CONFIG_PATH).result, aliases: true)[env])
     end
 
     # @return [Hash]
     def load_database_config
-      @database_config = YAML.load(erb('config/databases.yml').result)
+      @database_config = YAML.load(erb('config/database.yml').result, aliases: true)
     end
 
     # @param [String] path

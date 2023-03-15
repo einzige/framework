@@ -19,7 +19,7 @@ module Framework
       migration_file << ERB.new(template).result(context)
       migration_file.close
 
-      p "Generated migration: #@path"
+      puts "Generated migration: #@path"
     end
 
     def templates_path
